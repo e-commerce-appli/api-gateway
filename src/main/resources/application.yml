@@ -1,0 +1,63 @@
+server:
+  port: 9010
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+#      mvc:
+        routes:
+          - id: kanban-service
+            uri: lb://kanban-service
+            predicates:
+              - Path=/kanban/**
+            filters:
+              - name: AuthenticationFilter
+                Args:
+                  role: ROLE_USER,ROLE_ADMIN
+
+
+
+          - id: task-service
+            uri: lb://task-service
+            predicates:
+              - Path=/task/**
+            filters:
+              - name: AuthenticationFilter
+                Args:
+                  role: ROLE_USER,ROLE_ADMIN
+
+          - id: project-service
+            uri: lb://project-service
+            predicates:
+              - Path=/project/**
+            filters:
+              - name: AuthenticationFilter
+                Args:
+                  role: ROLE_ADMIN
+
+          - id: user-service-public
+            uri: lb://user-service
+            predicates:
+              - Path=/public/users/**
+
+
+          - id: user-service-private
+            uri: lb://user-service
+            predicates:
+              - Path=/private/users/**
+            filters:
+              - name: AuthenticationFilter
+                Args:
+                  role: ROLE_USER,ROLE_ADMIN
+
+
+
+
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:9000/eureka/
